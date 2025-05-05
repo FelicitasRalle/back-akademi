@@ -34,6 +34,57 @@ const registerUser = async (req, res) => {
     }
 };
 
+//listar (solo admin)
+const getUsers = async(req, res) =>{
+    try{
+        const users = await User.find().select("-password"); //sin contraseña
+        res.json(users);
+    }catch(eror){
+        console.error("error al obtener los usuarios", error);
+        res.status(500).json({ mensaje: "error al obtener los usuarios"});
+    }
+};
+
+//editar (soloa dmin)
+const updateUser = async (req, res) =>{
+    const { id } = req.params;
+    const { fullname, dni, cuil, email, rol } = req.body;
+
+    try{
+        const user = await User.findById(id);
+        if(!user) return res.status(404).json({ mensaje: "el usuario no es encontrado"});
+
+        //acualizo los datos si vienen el body
+        if(ullname) user.fullname = fullname;
+        if (dni) user.dni = dni;
+        if (cuil) user.cuil = cuil;
+        if (email) user.email = email;
+        if (rol) user.rol = rol;
+
+        await user.save();
+        res.json({ mensaje: "el usuario se encontro correctamente"});
+    }catch(error){
+        console.error("error al actualiar el usuario", error);
+        res.status(500).json({ mensaje: "error al actualizar el usuario"});
+    }
+}
+
+//eliminar (solo admin)
+const deleteUser = async (req, res)=>{
+    const { id } = req.params;
+
+    try{
+        const user = await UserfindByIdAndDelete(id)
+        if(!user) return res.status(404).json({ mensaje: "el usuario no se encontro"});
+
+        res.json({ mensaje: "el usuario se ha eliminado correctamente"});
+    }catch(error){
+        console.error("error al eliminar el usuario", error);
+        res.status(500).json({ mensaje: "error al eliminar el usuario"});
+    }
+}
+
+
 //login
 const loginUser = async (req, res) =>{
     const { email, password} = req.body;
@@ -59,5 +110,8 @@ const loginUser = async (req, res) =>{
 
 module.exports = {
     registerUser,
+    getUsers,
+    updateUsers,
+    deleteUsers,
     loginUser
 };
