@@ -4,7 +4,7 @@ const router = express.Router();
 const { registerUser, loginUser} = require('../controllers/userController');
 
 //ruta de prueba
-router.get('/', (req,  res)=>{
+router.get("/", (req,  res)=>{
     res.json({ mensaje: 'la ruta de usuarios esta funcionando correctamente'});
 });
 

@@ -17,7 +17,9 @@ const registerUser = async (req, res) => {
 
         //crear nuevo usuario
         const newUser = new User({
-            nombre,
+            fullname,
+            dni,
+            cuil,
             email,
             password: hashedPassword,
             rol
@@ -25,8 +27,9 @@ const registerUser = async (req, res) => {
 
         await newUser.save();
 
-        res.status(201).json({ mensjae: 'El usuario se registro correctamente'});
+        res.status(201).json({ mensaje: 'El usuario se registro correctamente'});
     }catch (error){
+        console.error("error en el registro: ", error);
         res.status(500).json({ mensaje: 'Se produjo un error al registrar el usuario'});
     }
 };
