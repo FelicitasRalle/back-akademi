@@ -1,29 +1,21 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-require('dotenv').config();
+const dotenv = require('dotenv');
+const connectDB = require('./utils/db');
+const userRoutes = require('./routes/userRoutes');
 
+dotenv.config();
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-//middlewares a usar
-app.use(cors());
+//middleware para parsear JSON
 app.use(express.json());
 
-//conexion a mongo
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser : true,
-    useUnifiedTopology : true,
-})
-.then(() => console.log('Conectado correctamente a mongo'))
-.catch(err => console.error('Error al querer conectarse a mongo'));
+//conectar a mongo
+connectDB();
 
-//ruta para probar la conexion
-app.get('/', (req, res) => {
-    res.send('api funciona correctamente');
-});
+//rutas
+app.use('/api/users', userRoutes);
 
-//iniciar el servidor
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log('servidor corriendo en ${PORT}')
-});
+    console.log(`servidor corriendo en el puerto ${PORT}`);
+})
