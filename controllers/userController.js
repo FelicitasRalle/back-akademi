@@ -55,14 +55,14 @@ const updateUser = async (req, res) =>{
         if(!user) return res.status(404).json({ mensaje: "el usuario no es encontrado"});
 
         //acualizo los datos si vienen el body
-        if(ullname) user.fullname = fullname;
+        if(fullname) user.fullname = fullname;
         if (dni) user.dni = dni;
         if (cuil) user.cuil = cuil;
         if (email) user.email = email;
         if (rol) user.rol = rol;
 
         await user.save();
-        res.json({ mensaje: "el usuario se encontro correctamente"});
+        res.json({ mensaje: "el usuario se actualizo correctamente"});
     }catch(error){
         console.error("error al actualiar el usuario", error);
         res.status(500).json({ mensaje: "error al actualizar el usuario"});
@@ -74,15 +74,17 @@ const deleteUser = async (req, res)=>{
     const { id } = req.params;
 
     try{
-        const user = await UserfindByIdAndDelete(id)
-        if(!user) return res.status(404).json({ mensaje: "el usuario no se encontro"});
+        const deletedUser = await User.findByIdAndDelete(id)
+        if(!deletedUser){
+            return res.status(404).json({ mensaje: "no se pudo encontrar el usuario"});
+        }
 
         res.json({ mensaje: "el usuario se ha eliminado correctamente"});
     }catch(error){
         console.error("error al eliminar el usuario", error);
         res.status(500).json({ mensaje: "error al eliminar el usuario"});
     }
-}
+};
 
 
 //login
