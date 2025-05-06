@@ -125,7 +125,7 @@ const forgotPassword = async (req, res) =>{
         const expiration = Date.now()+3600000; //una hora
 
         user.resetPasswordToken = token;
-        user.resetPassswordExpires = expiration;
+        user.resetPasswordExpires = expiration;
         await user.save();
 
         //conf de nodemailer con gmail
@@ -170,8 +170,7 @@ const resetPassword = async (req, res) => {
 
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(newPassword, salt);
-        user.resetPasswordToken = null;
-        user.resetPasswordExpires = null;
+       
 
         await user.save();
 
