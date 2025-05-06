@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 //registro nuevo usuario
 const registerUser = async (req, res) => {
@@ -107,6 +109,76 @@ const loginUser = async (req, res) =>{
         res.json({ mensaje: 'Login existoso', token});
     }catch(error){
         res.status(500).json({ mensaje: 'Error al iniciar sesion'});
+    }
+};
+
+//solicitar resetear la contraseña
+const forgotPassword = async (req, res) =>{
+    const { email } = req.body;
+
+    try{
+        const user = await User.findOne({ email });
+        if(!user) return res.status(404).json({ mensaje: "no se encontro el usuario"});
+
+        //genero un token y tiempo de vencimiento (1 hora)
+        const token = crypto.randomBytes(32).toString('hex');
+        const expiration = Date.now()+3600000; //una hora
+
+        user.resetPasswordToken = token;
+        user.resetPassswordExpires = expiration;
+        aeait user.save();
+
+        //conf de nodemailer con gmail
+        const trasnporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.enc.EMAIL_USER, //mi mail
+                pass: process.env.EMAIL_PASS //mi contraseña
+            }
+        });
+
+        const resetLink = `http://localhost:3000/api/users/reset-password/${token}`;
+
+        const mailOptions = {
+            to: user.email,
+            from: process.env.EMAIL_USER,
+            subject: 'Recuperacion de contraseña',
+            text: `Olvidaste tu contraseña? Haz click en el siguiente link:\n\n${resetLink}\n\nEste link expirará en 1 hora.`,
+        };
+
+        await trasnporter.sendMail(mailOptions);
+
+        res.status(200).json({ mensaje: 'El email se ha enviado de forma corecta'});
+    }catch(error){
+        console.error('Error al enviar el mail', error);
+        res.status(500).json({ mensaje: 'Erroe al procesar la solictud'});
+    }
+};
+
+//resetear la contraseña
+const resetPassword = asyn (req, res) =>{
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    try{
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() } //el token no vencido
+        });
+
+        if(!user) return res.status(400).json({ mensaje: 'Token incorrecto o expirado'});
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        user.resetPasswordToken = null;
+        user.resetPasswordExpires = null;
+
+        await user.save();
+
+        res.status(200).json({ mensaje: 'La contraseña se actualizo correctamente'});
+    }catch(error){
+        console.error('Error al cambiar la contrseña', error);
+        res.status(500).json({ mensaje: 'No se pudo cambiar la contraseña'});
     }
 };
 
