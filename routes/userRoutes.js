@@ -5,7 +5,9 @@ const {
     loginUser,
     getUsers,
     updateUser,
-    deleteUser
+    deleteUser,
+    forgotPassword,
+    resetPassword
 } = require('../controllers/userController');
 
 const { protect, adminOnly } = require('../middlewares/authMiddleware');
@@ -13,6 +15,9 @@ const { protect, adminOnly } = require('../middlewares/authMiddleware');
 router.post('/register', registerUser);
 
 router.post('/login', loginUser);
+
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password/:token', resetPassword);
 
 router.get('/', protect, adminOnly, getUsers);
 router.put('/:id', protect, adminOnly, updateUser);

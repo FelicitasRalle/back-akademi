@@ -126,13 +126,13 @@ const forgotPassword = async (req, res) =>{
 
         user.resetPasswordToken = token;
         user.resetPassswordExpires = expiration;
-        aeait user.save();
+        await user.save();
 
         //conf de nodemailer con gmail
         const trasnporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: process.enc.EMAIL_USER, //mi mail
+                user: process.env.EMAIL_USER, //mi mail
                 pass: process.env.EMAIL_PASS //mi contraseña
             }
         });
@@ -151,12 +151,12 @@ const forgotPassword = async (req, res) =>{
         res.status(200).json({ mensaje: 'El email se ha enviado de forma corecta'});
     }catch(error){
         console.error('Error al enviar el mail', error);
-        res.status(500).json({ mensaje: 'Erroe al procesar la solictud'});
+        res.status(500).json({ mensaje: 'Error al procesar la solictud'});
     }
 };
 
 //resetear la contraseña
-const resetPassword = asyn (req, res) =>{
+const resetPassword = async (req, res) => {
     const { token } = req.params;
     const { newPassword } = req.body;
 
@@ -187,5 +187,7 @@ module.exports = {
     getUsers,
     updateUser,
     deleteUser,
-    loginUser
+    loginUser,
+    forgotPassword,
+    resetPassword
 };
