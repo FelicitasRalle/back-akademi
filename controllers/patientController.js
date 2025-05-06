@@ -30,14 +30,14 @@ const updatePatient = async (req, res)=>{
     const updates = req.body;
 
     try{
-        const updatedPatient = await Patient.findByIdAndUpdate(id, update, { new: true });
+        const updatedPatient = await Patient.findByIdAndUpdate(id, updates, { new: true });
 
         if(!updatedPatient){
             return res.status(400).json({ mensaje: 'No se encontro el paciente'});
         }
 
         res.status(200).json({ mensaje: 'El paciente se actualizo correctamente', patient: updatedPatient});
-    }catch{
+    }catch(error){
         console.error('Error al actualizar el paciente', error);
         res.status(500),json({ mensaje: 'No se pudo actualizar el paciente'});
     }
@@ -48,7 +48,7 @@ const deletePatient = async (req, res)=>{
     const { id } = req.params;
 
     try{
-        const deletedPatient = await Patient.findByIdAndDelte(id);
+        const deletedPatient = await Patient.findByIdAndDelete(id);
 
         if(!deletedPatient){
             return res.status(404).json({ mensaje: 'No se encontro el paciente'});
@@ -72,9 +72,9 @@ const getPatients = async (req, res) =>{
 
     try{
         const patients = await Patient.find({
-            fullname: { $regrex: fullname, $options: 'i'},
+            fullname: { $regex: fullname, $options: 'i'},
             dni,
-            medicalInsurance: { $regrex: medicalInsurance, $options: 'i'}
+            medicalInsurance: { $regex: medicalInsurance, $options: 'i'}
         });
 
         res.status(200).json(patients);

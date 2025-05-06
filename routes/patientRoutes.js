@@ -5,14 +5,16 @@ const{
     getPatients,
     createPatient,
     updatePatient,
-    updatePatient,
     deletePatient
 }= require('../controllers/patientController');
 
-router.get('/', patientController.getPatients);
+const auth = require('../middlewares/authMiddleware');
+const checkRole = require('../middlewares/checkRole');
+
+router.get('/', getPatients);
 router.post('/', createPatient);
 router.put('/:id', updatePatient);
 router.delete('/:id', deletePatient);
 
 
-module.export = router;
+module.exports = router;
