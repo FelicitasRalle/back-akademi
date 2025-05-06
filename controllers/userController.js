@@ -9,7 +9,7 @@ const registerUser = async (req, res) => {
     try{
         //verfico si el usuario ya existe
         const existingUser = await User.findOne({ email });
-        if(existingUser) return res.status(400).json({mensaje: 'El usuario ya existe en el servidor'});
+        if(existingUser) return res.status(400).json({mensaje: 'El usuario ya existe en el servidor' });
 
         //hasheo la contraseña
         const salt = await bcrypt.genSalt(10);
@@ -111,7 +111,7 @@ const loginUser = async (req, res) =>{
 module.exports = {
     registerUser,
     getUsers,
-    updateUsers,
-    deleteUsers,
+    updateUser,
+    deleteUser,
     loginUser
 };
