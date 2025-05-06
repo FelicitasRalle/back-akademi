@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
   },
   rol: {
     type: String,
-    enum: ['admin', 'doctor', 'paciente'],
+    enum: ['admin', 'doctor', 'paciente','recepcionista'],
     default: 'paciente',
   },
   resetPasswordToken: {
