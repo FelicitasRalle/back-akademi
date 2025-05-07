@@ -34,7 +34,8 @@ const getDoctors = async (req, res) =>{
 
     try{
         const doctors = await Doctor.find({
-            specialty:{ $regex: specialty, $options: 'i'}
+            specialty:{ $regex: specialty, $options: 'i'},
+            enabled: true
         });
 
         res.status(200).json(doctors);
