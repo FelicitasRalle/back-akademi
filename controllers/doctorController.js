@@ -23,3 +23,23 @@ const createDoctor = async (req, res) =>{
         res.status(500).json({ mensaje: 'No se pudo registrar el nuevo doctor'});
     }
 };
+
+//listar doctores por especialidad
+const getDoctors = async (req, res) =>{
+    const { specialty } = req.query;
+
+    if(!specialty){
+        return res.status(400).json({ mensaje: 'El filtro de especialidad es obligatorio'});
+    }
+
+    try{
+        const doctors = await Doctor.find({
+            specialty:{ $regex: specialty, $options: 'i'}
+        });
+
+        res.status(200).json.(doctors);
+    }catch(error){
+        console.error('Error al obtener doctores', error);
+        res.status(500).json({ mensaje: 'Error al obtener los doctores'});
+    }
+};
