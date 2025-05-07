@@ -37,7 +37,7 @@ const getDoctors = async (req, res) =>{
             specialty:{ $regex: specialty, $options: 'i'}
         });
 
-        res.status(200).json.(doctors);
+        res.status(200).json(doctors);
     }catch(error){
         console.error('Error al obtener doctores', error);
         res.status(500).json({ mensaje: 'Error al obtener los doctores'});
