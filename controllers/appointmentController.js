@@ -55,3 +55,25 @@ const updateAppointment = async (req, res) =>{
         res.status(500).json({ mensaje: 'No se pudo actualizar el turno'});
     }
 };
+
+//eliminar turno
+const deleteAppointment = async (req, res) =>{
+    const { id } = req.params;
+
+    try{
+        const deleted = await Appointment.findByIdAndDelete(id);
+        if(!deleted) return res.status(404).json({ mensaje: 'No se encontro el turno'});
+
+        res.status(200).json({ mensaje: 'Se elimino el turno correctamente'});
+    }catch(error){
+        console.error('Error al eliminar el turno', error);
+        res.status(500).json({ mensaje: 'No se pudo eliminar el turno'});
+    }
+};
+
+module.exports = {
+    createAppointment,
+    getAppointments,
+    updateAppointment,
+    deleteAppointment
+};
