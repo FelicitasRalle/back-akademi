@@ -62,3 +62,28 @@ const updateDoctor = async (req, res) =>{
         res.status(500).json({ mensaje: 'No se pudo actualizar el doctor'});
     }
 };
+
+//eliminar un dcotor
+const deleteDoctor = async (req, res) =>{
+    const { id } = req.params;
+
+    try{
+        const deletedDoctor = await Doctor.findByIdAndDelete(id);
+
+        if(!deletedDoctor){
+            return res.status(404).json({ mensaje: 'No se encontro el doctor '});
+        }
+
+        res.status(200).json({ mensaje: 'El doctor se ha eliminado correctamente '});
+    }catch(error){
+        console.error('Error al querer eliminar el doctor', error);
+        res.status(500).json({ mensaje: 'No se pudo elimianr el doctor'});
+    }
+};
+
+module.exports = {
+    createDoctor,
+    getDoctors,
+    updateDoctor,
+    deleteDoctor
+};
