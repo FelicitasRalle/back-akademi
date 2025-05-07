@@ -18,3 +18,25 @@ const createAppointment = async (req, res) =>{
         res.status(500).json({ mensaje: 'No se pudo registrar el turno'});   
     }
 };
+
+//listar turnos
+const getAppointments = async (req, res) =>{
+    const { doctor, patient, date } = req.query;
+    const filtro = {};
+
+    if (doctor) filtro.doctor = doctor;
+    if (patient) filtro.patient = patient;
+    if (date) filtro.date = new Date(date); //convierto el tipo string a tipo date
+
+    try{
+        const appointments = await Appointmen.find(filtro)
+        .populate('doctor', 'fullname specialty')
+        .populate('patient', 'fullname dni');
+
+        res.status(200).json(appointments);
+    }catch(error){
+        console.error('Error al obtenr turnos', error);
+        res.status(500).json({ mensaje: 'Error al obtener los turnos'});
+    }
+};
+
