@@ -50,20 +50,38 @@ const getAppointments = async (req, res) =>{
 };
 
 //editar un turno
-const updateAppointment = async (req, res) =>{
-    const { id } = req.params;
-    const updates = req.body;
+const updateAppointment = async (req, res) => {
+  const { id } = req.params;
+  const { doctor, date, time } = req.body;
 
-    try{
-        const updated = await Appointment.findByIdAndUpdate(id, updates, { new: true });
-        if (!updated) return res.status(404).json({ mensaje: 'No se encontro el turno'});
+  try {
+    // valido la disponibilidad solo si se quiere cambiar doctor/fecha/hora
+    if (doctor && date && time) {
+      const turnoExistente = await Appointment.findOne({
+        doctor,
+        date,
+        time,
+        _id: { $ne: id } // excluye el turno actual
+      });
 
-        res.status(200).json({ mensaje: 'El turno se actualizo correctamente'});
-    }catch(error){
-        console.error('Error al actualizar el turno', error);
-        res.status(500).json({ mensaje: 'No se pudo actualizar el turno'});
+      if (turnoExistente) {
+        return res.status(400).json({
+          mensaje: 'El doctor ya tiene un turno en esa fecha y hora'
+        });
+      }
     }
+
+    const updated = await Appointment.findByIdAndUpdate(id, req.body, { new: true });
+
+    if (!updated) return res.status(404).json({ mensaje: 'Turno no encontrado' });
+
+    res.status(200).json({ mensaje: 'Turno actualizado correctamente', appointment: updated });
+  } catch (error) {
+    console.error('Error al actualizar turno:', error);
+    res.status(500).json({ mensaje: 'No se pudo actualizar el turno' });
+  }
 };
+
 
 //eliminar turno
 const deleteAppointment = async (req, res) =>{
