@@ -40,3 +40,18 @@ const getAppointments = async (req, res) =>{
     }
 };
 
+//editar un turno
+const updateAppointment = async (req, res) =>{
+    const { id } = req.params;
+    const updates = req.body;
+
+    try{
+        const updated = await Appointment.findByIdAndUpdate(id, updates, { new: true });
+        if (!updated) return res.status(404).json({ mensaje: 'No se encontro el turno'});
+
+        res.status(200).json({ mensaje: 'El turno se actualizo correctamente'});
+    }catch(error){
+        console.error('Error al actualizar el turno', error);
+        res.status(500).json({ mensaje: 'No se pudo actualizar el turno'});
+    }
+};
