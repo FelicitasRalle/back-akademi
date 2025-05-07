@@ -1,23 +1,32 @@
 const Appointment = require('../models/Appointment');
 
 //crear turno
-const createAppointment = async (req, res) =>{
+const createAppointment = async (req, res) => {
     const { doctor, patient, date, time, reason } = req.body;
-
-    if(!doctor || !patient || !date || !time || !reason){
-        return res.status(400).json({ mensaje: 'Todos los campos son obligatorios'});
+  
+    if (!doctor || !patient || !date || !time || !reason) {
+      return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
     }
-
-    try{
-        const newAppointment = new Appointment({ doctor, patient, date, time, reason });
-        await newAppointment.save();
-
-        res.status(201).json({ mensaje: 'turno registrado correctamente', appointment: newAppointment});
-    }catch(error){
-        console.error('Error al registrar el turno', error);
-        res.status(500).json({ mensaje: 'No se pudo registrar el turno'});   
+  
+    try {
+      // Validar duplicado
+      const turnoExistente = await Appointment.findOne({ doctor, date, time });
+      if (turnoExistente) {
+        return res.status(400).json({
+          mensaje: 'El doctor ya tiene un turno asignado en esa fecha y hora'
+        });
+      }
+  
+      const newAppointment = new Appointment({ doctor, patient, date, time, reason });
+      await newAppointment.save();
+  
+      res.status(201).json({ mensaje: 'Turno creado correctamente', appointment: newAppointment });
+    } catch (error) {
+      console.error('Error al crear turno:', error);
+      res.status(500).json({ mensaje: 'No se pudo crear el turno' });
     }
-};
+  };
+  
 
 //listar turnos
 const getAppointments = async (req, res) =>{
@@ -29,7 +38,7 @@ const getAppointments = async (req, res) =>{
     if (date) filtro.date = new Date(date); //convierto el tipo string a tipo date
 
     try{
-        const appointments = await Appointmen.find(filtro)
+        const appointments = await Appointment.find(filtro)
         .populate('doctor', 'fullname specialty')
         .populate('patient', 'fullname dni');
 
