@@ -43,3 +43,22 @@ const getDoctors = async (req, res) =>{
         res.status(500).json({ mensaje: 'Error al obtener los doctores'});
     }
 };
+
+//editar doctor ya creado
+const updateDoctor = async (req, res) =>{
+    const { id } = req.params;
+    const updates = req.body;
+
+    try{
+        const updatedDoctor = await Doctor.findByIdAndUpdate(id, updates, { new: true });
+
+        if(!updatedDoctor){
+            return res.status(404).json({ mensaje: 'Doctor no encontrdo'});
+        }
+
+        res.status(200).json({ mensaje: 'El doctor se actualizo correctamente'});
+    }catch(error){
+        console.error('Error al actualizar doctor', error);
+        res.status(500).json({ mensaje: 'No se pudo actualizar el doctor'});
+    }
+};
