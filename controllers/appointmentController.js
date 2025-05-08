@@ -29,25 +29,29 @@ const createAppointment = async (req, res) => {
   
 
 //listar turnos
-const getAppointments = async (req, res) =>{
-    const { doctor, patient, date } = req.query;
-    const filtro = {};
+const getAppointments = async (req, res) => {
+  const { doctor, patient } = req.query;
+  const filtro = {};
 
-    if (doctor) filtro.doctor = doctor;
-    if (patient) filtro.patient = patient;
-    if (date) filtro.date = new Date(date); //convierto el tipo string a tipo date
-
-    try{
-        const appointments = await Appointment.find(filtro)
-        .populate('doctor', 'fullname specialty')
-        .populate('patient', 'fullname dni');
-
-        res.status(200).json(appointments);
-    }catch(error){
-        console.error('Error al obtenr turnos', error);
-        res.status(500).json({ mensaje: 'Error al obtener los turnos'});
+  try {
+    //listo con los dos fltros obligatorios
+    if (doctor && patient) {
+      filtro.doctor = doctor;
+      filtro.patient = patient;
     }
+
+    //muestro todos
+    const appointments = await Appointment.find(filtro)
+      .populate('doctor', 'fullname specialty')
+      .populate('patient', 'fullname dni');
+
+    res.status(200).json(appointments);
+  } catch (error) {
+    console.error('Error al obtener turnos', error);
+    res.status(500).json({ mensaje: 'Error al obtener los turnos' });
+  }
 };
+
 
 //editar un turno
 const updateAppointment = async (req, res) => {
