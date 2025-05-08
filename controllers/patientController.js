@@ -63,7 +63,7 @@ const deletePatient = async (req, res)=>{
 
 //obtener pacientes por los filtros obligatrorios
 const getPatients = async (req, res) => {
-    const { fullname, dni, medicalInsurance } = req.query;
+    const { fullname, dni, medicalInsurance, page = 1, limit = 10 } = req.query;
     let filtro = {};
   
     try {
@@ -75,8 +75,9 @@ const getPatients = async (req, res) => {
           medicalInsurance: { $regex: medicalInsurance, $options: 'i' }
         };
       }
+      const skip = (parseInt(page) - 1)*parseInt(limit);
   
-      const patients = await Patient.find(filtro);
+      const patients = await Patient.find(filtro).skip(skip).limit(parseInt(limit));
       res.status(200).json(patients);
     } catch (error) {
       console.error('Error al obtener los pacientes:', error);

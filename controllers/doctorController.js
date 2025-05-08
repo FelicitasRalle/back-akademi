@@ -27,17 +27,18 @@ const createDoctor = async (req, res) =>{
 
 //listar doctores
 const getDoctors = async (req, res) => {
-  const { specialty } = req.query;
+  const { specialty, page = 1, limit = 10 } = req.query;
 
   try {
     let doctors;
+    const skip = (parseInt(page) - 1)*parseInt(limit);
 
     if (specialty) {
       // filtro por especialidad (solo habilitados)
       doctors = await Doctor.find({
         specialty: { $regex: specialty, $options: 'i' },
         enabled: true
-      });
+      }).skip(skip).limit(parseInt(limit));
 
       // si no se encontró ningún doctor, mostrar error
       if (doctors.length === 0) {

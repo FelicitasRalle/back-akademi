@@ -30,7 +30,7 @@ const createAppointment = async (req, res) => {
 
 //listar turnos
 const getAppointments = async (req, res) => {
-  const { doctor, patient } = req.query;
+  const { doctor, patient, page = 1, limit = 10 } = req.query;
   const filtro = {};
 
   try {
@@ -39,6 +39,7 @@ const getAppointments = async (req, res) => {
       filtro.doctor = doctor;
       filtro.patient = patient;
     }
+    const skip = (parseInt(page) - 1)*parseInt(limit);
 
     //muestro todos
     const appointments = await Appointment.find(filtro)
