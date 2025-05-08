@@ -27,28 +27,34 @@ const createDoctor = async (req, res) =>{
 
 //listar doctores
 const getDoctors = async (req, res) => {
-    const { specialty } = req.query;
-  
-    try {
-      let doctors;
-  
-      if (specialty) {
-        //filtro para mostrar por especialidad
-        doctors = await Doctor.find({
-          specialty: { $regex: specialty, $options: 'i' },
-          enabled: true
-        });
-      } else {
-        //muestro todos, inclusos los no habilitads
-        doctors = await Doctor.find();
+  const { specialty } = req.query;
+
+  try {
+    let doctors;
+
+    if (specialty) {
+      // filtro por especialidad (solo habilitados)
+      doctors = await Doctor.find({
+        specialty: { $regex: specialty, $options: 'i' },
+        enabled: true
+      });
+
+      // si no se encontró ningún doctor, mostrar error
+      if (doctors.length === 0) {
+        return res.status(404).json({ mensaje: `No se encontraron doctores con la especialidad "${specialty}"` });
       }
-  
-      res.status(200).json(doctors);
-    } catch (error) {
-      console.error('Error al obtener doctores:', error);
-      res.status(500).json({ mensaje: 'Error al obtener los doctores' });
+    } else {
+      // mostrar todos los doctores (habilitados o no)
+      doctors = await Doctor.find();
     }
-  };
+
+    res.status(200).json(doctors);
+  } catch (error) {
+    console.error('Error al obtener doctores:', error);
+    res.status(500).json({ mensaje: 'Error al obtener los doctores' });
+  }
+};
+
   
 
 //editar doctor ya creado
