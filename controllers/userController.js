@@ -170,7 +170,8 @@ const resetPassword = async (req, res) => {
 
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(newPassword, salt);
-       
+        user.resetPasswordToken = null;
+        user.resetPasswordExpires = null;
 
         await user.save();
 
