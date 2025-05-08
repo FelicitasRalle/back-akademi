@@ -1,4 +1,5 @@
 const Doctor = require('../models/Doctor');
+const Appointment = require('../models/Appointment');
 
 //crear nuevo doctor
 const createDoctor = async (req, res) =>{
@@ -65,22 +66,30 @@ const updateDoctor = async (req, res) =>{
 };
 
 //eliminar un dcotor
-const deleteDoctor = async (req, res) =>{
+const deleteDoctor = async (req, res) => {
     const { id } = req.params;
-
-    try{
-        const deletedDoctor = await Doctor.findByIdAndDelete(id);
-
-        if(!deletedDoctor){
-            return res.status(404).json({ mensaje: 'No se encontro el doctor '});
-        }
-
-        res.status(200).json({ mensaje: 'El doctor se ha eliminado correctamente '});
-    }catch(error){
-        console.error('Error al querer eliminar el doctor', error);
-        res.status(500).json({ mensaje: 'No se pudo elimianr el doctor'});
+  
+    try {
+      // verifico si el doctor tiene turnos asignados
+      const turnosAsignados = await Appointment.findOne({ doctor: id });
+      if (turnosAsignados) {
+        return res.status(400).json({
+          mensaje: 'No se puede eliminar el doctor porque tiene turnos asignados'
+        });
+      }
+  
+      const deletedDoctor = await Doctor.findByIdAndDelete(id);
+      if (!deletedDoctor) {
+        return res.status(404).json({ mensaje: 'Doctor no encontrado' });
+      }
+  
+      res.status(200).json({ mensaje: 'Doctor eliminado correctamente' });
+    } catch (error) {
+      console.error('Error al eliminar el doctor:', error);
+      res.status(500).json({ mensaje: 'No se pudo eliminar el doctor' });
     }
-};
+  };
+  
 
 module.exports = {
     createDoctor,
