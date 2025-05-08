@@ -62,27 +62,27 @@ const deletePatient = async (req, res)=>{
 };
 
 //obtener pacientes por los filtros obligatrorios
-const getPatients = async (req, res) =>{
-    const { fullname, dni, medicalInsurance} = req.query;
-
-    //verifico los filtro obligatorios
-    if(!fullname || !dni || !medicalInsurance){
-        return res.status(400).json({ mensaje: 'Se requieren los filtros obligatorios'});
+const getPatients = async (req, res) => {
+    const { fullname, dni, medicalInsurance } = req.query;
+    let filtro = {};
+  
+    try {
+      //filtro
+      if (fullname && dni && medicalInsurance) {
+        filtro = {
+          fullname: { $regex: fullname, $options: 'i' },
+          dni,
+          medicalInsurance: { $regex: medicalInsurance, $options: 'i' }
+        };
+      }
+  
+      const patients = await Patient.find(filtro);
+      res.status(200).json(patients);
+    } catch (error) {
+      console.error('Error al obtener los pacientes:', error);
+      res.status(500).json({ mensaje: 'Error al obtener los pacientes' });
     }
-
-    try{
-        const patients = await Patient.find({
-            fullname: { $regex: fullname, $options: 'i'},
-            dni,
-            medicalInsurance: { $regex: medicalInsurance, $options: 'i'}
-        });
-
-        res.status(200).json(patients);
-    }catch(error){
-        console.error('Error al obtener los pacientes: ', error);
-        res.status(500).json({ mensaje: 'Error al obtenr los pacientes'});
-    }
-};
+  };
 
 
 module.exports ={
