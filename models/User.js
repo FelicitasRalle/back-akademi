@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
-  resentPasswordExpires: {
+  resetPasswordExpires: {
     type: Date,
     default: null,
   }
