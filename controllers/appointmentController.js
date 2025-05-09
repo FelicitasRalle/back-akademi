@@ -1,4 +1,6 @@
 const Appointment = require('../models/Appointment');
+const nodemailer = require('nodemailer');
+const User = require('../models/User');
 
 //crear turno
 const createAppointment = async (req, res) => {
@@ -60,7 +62,7 @@ const updateAppointment = async (req, res) => {
   const { doctor, date, time, status } = req.body;
 
   try {
-    // validar disponibilidad
+    // valido horario
     if (doctor && date && time) {
       const turnoExistente = await Appointment.findOne({
         doctor,
@@ -78,22 +80,45 @@ const updateAppointment = async (req, res) => {
 
     const updated = await Appointment.findByIdAndUpdate(id, req.body, { new: true });
 
-    if (!updated) {
-      return res.status(404).json({ mensaje: 'Turno no encontrado' });
-    }
-    //mensaje segun es cancelado o confirmao el turno
+    if (!updated) return res.status(404).json({ mensaje: 'Turno no encontrado' });
+
+    // si el turno fue confirmado envio de mail
     if (status === 'confirmado') {
-      return res.status(200).json({ mensaje: 'El turno fue confirmado correctamente', appointment: updated });
-    } else if (status === 'cancelado') {
-      return res.status(200).json({ mensaje: 'El turno fue cancelado correctamente', appointment: updated });
+      const doctorData = await User.findById(updated.doctor);
+      const patientData = await User.findById(updated.patient);
+
+      if (patientData && patientData.email) {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+          }
+        });
+
+        const mailOptions = {
+          to: patientData.email,
+          from: process.env.EMAIL_USER,
+          subject: 'Turno confirmado - AKADEMI',
+          text: `Hola ${patientData.fullname}, tu turno con el Dr./Dra. ${doctorData.fullname} ha sido confirmado para el día ${updated.date.toISOString().split('T')[0]} a las ${updated.time}.`
+        };
+
+        await transporter.sendMail(mailOptions);
+      }
+
+      return res.status(200).json({
+        mensaje: 'El turno fue confirmado correctamente y se envió un recordatorio por correo',
+        appointment: updated
+      });
     }
+
+    // sin la confirmacion
     res.status(200).json({ mensaje: 'Turno actualizado correctamente', appointment: updated });
   } catch (error) {
     console.error('Error al actualizar turno:', error);
     res.status(500).json({ mensaje: 'No se pudo actualizar el turno' });
   }
 };
-
 
 
 //eliminar turno
